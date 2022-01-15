@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="nui://game/ui/jquery.js" type="text/javascript"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+    <script src="https://kit.fontawesome.com/76e7478913.js" crossorigin="anonymous"></script>
+
+
+</head>
+
+<body style="background-color: transparent!important;">
+
+    <div id="app">
+
+        <div class="bounties" :style="position" v-if="show">
+            <i class="fas fa-times-circle close" v-if=" selectedBounty == null" @click="setShow(false)"></i>
+
+
+            <template v-if=" selectedBounty == null">
+
+                <template v-if="getPagesBounties.length > '0'">
+                    <div class="bounty" @click="viewBounty(bounty)" v-for="(bounty,index) in getPagesBounties"
+                      v-if="index < maxBountyPerPage" >
+                        <h6>{{bounty.reason.length > 21 ? bounty.reason.substring(0, 21)+ '...' : bounty.reason }} </h6>
+                        <img class="cowboy-image" src="./cowboy.png">
+
+                        <h6>{{bounty.text.length > 21 ? bounty.text.substring(0, 21) + '...' : bounty.text }}</h6>
+                    </div>
+
+
+                </template>
+                <div v-else>
+                    <p style="color: white;">Nessuna taglia pubblicata per ora</p>
+                </div>
+            </template>
+            <div v-else>
+                <div class="bounty-preview">
+                    <i class="fas fa-times-circle preview-back" @click="selectedBounty=null;"></i>
+
+                    <h6>{{selectedBounty.reason}} </h6>
+                    <img class="cowboy-image" src="./cowboy.png">
+
+                    <h6>{{selectedBounty.text}}</h6>
+                    <div class="btn btn-red" @click="selectJob">Accetta Lavoro</div>
+                </div>
+
+            </div>
+            <div class="change-page" v-if=" selectedBounty == null  && getPagesBounties.length > '0'">
+                <i class="fas fa-chevron-circle-left" @click="pageChanged('LEFT')"></i>
+                <p> {{currentPage}}/{{maxPages}}</p>
+                <i class="fas fa-chevron-circle-right" @click="pageChanged('RIGHT')"></i>
+            </div>
+            <div class="post-bounty" v-if=" selectedBounty == null">
+                <div class="btn btn-red" @click="showForm=true">Nuova Taglia</div>
+            </div>
+
+        </div>
+        <div class="bounty-details " v-if="showDetails">
+            <div class="close-bounty-details" @click="closeDetails"><p>X</p></div>
+            <input class="bounty-details-input" type="text" placeholder="cerca per nome" v-model="form.filteredDisplayName">
+            <div v-for="(bounty, index) in getPagesDisplayBounties"  v-if="index < maxDisplayBountyPerPage" class="bounty-detail ">
+                <p>Nome: {{getPlayerNameByIdentifier(bounty.target)}} </p>
+                <p>Piazzata da: {{getPlayerNameByIdentifier(bounty.owner)}}</p>
+                <p>Info: {{bounty.reason}} </p>
+                <p>Ricompensa: {{bounty.bountyReward}}$ </p>
+            </div>
+
+
+            <div class="my-5"></div>
+            <div class="bounty-details-change-page">
+                <i class="fas fa-chevron-circle-left" @click="pageChangedDisplayBounty('LEFT')"></i>
+                <p>{{currentDisplayBountyPage}}/{{maxPagesDisplayBounties}}</p>
+                <i class="fas fa-chevron-circle-right" @click="pageChangedDisplayBounty('RIGHT')"></i>
+            </div>
+        </div>
+        <div class="container" v-if="showForm">
+            <form class='form'>
+
+                <p class='field'>
+                    <label class='label' for='bounty-filter'>Filtra Nome (Nome Personaggio)</label>
+                    <input class='text-input' v-model="form.filteredName" name='bounty-filter' type='text'>
+                </p>
+
+                <p class='field required '>
+                    <label class='label required' for='name'>A chi vuoi piazzarla?</label>
+                    <select name="name" class="select" v-model="form.selectedPlayer">
+                        <option value="player" selected>Scegli un Player</option>
+                        <option :value="player" v-for="player in filteredPlayers">{{player.firstname}}
+                            {{player.lastname}}  </option>
+                    </select>
+                </p>
+
+                <p class='field required'>
+                    <label class='label required' for='bounty-reason'>Info(Nome Discord, Motivo, Descrizione...)</label>
+                    <input class='text-input' v-model="form.reason" name='bounty-reason' type='text'>
+                </p>
+
+                <p class='field required'>
+                    <label class='label' for='bounty-reward'>Quanto paghi per la taglia?</label>
+                    <input class='text-input' v-model="form.bountyReward" name='bounty-reward' type='text'>
+                </p>
+
+                <p class='field d-flex'>
+                    <input class='button' @click="sendToBoard" type='button' value='Piazza'>
+                    <input class='button' @click="closeForm" type='button' value='Chiudi'>
+                </p>
+
+
+            </form>
+        </div>
+    </div>
+</body>
+<script src="app.js"></script>
+
+</html>
